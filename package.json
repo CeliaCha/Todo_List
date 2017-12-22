@@ -1,7 +1,7 @@
 {
   "name": "todolist",
   "version": "1.0.0",
-  "description": "",
+  "description": "Exo Todolist",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "todolist"
   },
-  "author": "",
+  "author": "Célia Chazel",
   "license": "ISC",
   "devDependencies": {
     "browser-sync": "^2.19.0",
@@ -19,5 +19,9 @@
     "gulp-sass": "^3.1.0",
     "gulp-uglify": "^3.0.0",
     "merge-stream": "^1.0.1"
+  },
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "materialize-css": "^0.100.2"
   }
 }
