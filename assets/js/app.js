@@ -3,12 +3,40 @@ var taskList = [];
 // Listener du bouton ajouter
 document.getElementById("submitTask").addEventListener("click", addTask);
 
-// appelée quand une checkbox est cochée
-function updateTasks() {
-  var indexTask = this.id[this.id.length - 1] - 1;
-  var myLabels = document.getElementsByTagName("label");
-  log(indexTask);
-  myLabels[indexTask].style.textDecoration == "line-through" ? myLabels[indexTask].style.textDecoration = "none" : myLabels[indexTask].style.textDecoration ="line-through";
+// Listeners boutons radio du filtre
+document.getElementById("todo").addEventListener("click", displayToDo);
+document.getElementById("done").addEventListener("click", displayDone);
+document.getElementById("alltasks").addEventListener("click", displayAll);
+
+function displayToDo() {
+  displayAll();
+  if (this.checked) {
+    for (i in taskList) {
+      var myTask = document.getElementById('label' + taskList[i].name);
+      if (myTask.style.textDecoration == "line-through") {
+        myTask.style.display = "none";
+      }
+    }
+  }
+}
+
+function displayDone() {
+  displayAll();
+  if (this.checked) {
+    for (i in taskList) {
+      var myTask = document.getElementById('label' + taskList[i].name);
+      if (myTask.style.textDecoration != "line-through") {
+        myTask.style.display = "none";
+      }
+    }
+  }
+}
+
+function displayAll() {
+  for (i in taskList) {
+    var myTask = document.getElementById('label' + taskList[i].name);
+    myTask.style.display = "inline";
+  }
 }
 
 // appelée par bouton ajouter
@@ -23,18 +51,26 @@ function addTask() {
   var label = document.createElement('label');
   var checkbox = document.createElement('input');
   checkbox.setAttribute('type', 'checkbox');
-  checkbox.setAttribute('class', 'checklist');
-  checkbox.setAttribute('id', 'check' + taskList.length);
-  label.setAttribute('for', 'check' + taskList.length);
+  checkbox.setAttribute('id', newTask.name);
+  label.setAttribute('for', newTask.name);
+  label.setAttribute('id', 'label' + newTask.name);
   label.textContent = newTask.name;
   li.appendChild(checkbox);
   li.appendChild(label);
   document.getElementById("tasklist").appendChild(li);
 
   // Ajoute un listener sur chaque nouveau checkbox
-  var myCheckboxes = document.getElementsByClassName("checklist");
-  myCheckboxes[taskList.length - 1].addEventListener("click", updateTasks);
+  var myCheckbox = document.getElementById(newTask.name);
+  myCheckbox.addEventListener("click", updateTasks);
 }
+
+
+// appelée quand une checkbox est cochée
+function updateTasks() {
+  var thisLabel = document.getElementById('label' + this.id);
+  thisLabel.style.textDecoration == "line-through" ? thisLabel.style.textDecoration = "none" : thisLabel.style.textDecoration = "line-through";
+}
+
 
 // Objet Task
 var Task = function(name, date, category) {
@@ -43,13 +79,6 @@ var Task = function(name, date, category) {
   this.category = category;
   this.isDone = false;
 }
-
-
-
-
-
-
-
 
 
 //DEV
