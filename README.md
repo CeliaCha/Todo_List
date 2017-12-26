@@ -1,3 +1,7 @@
+## GH-Pages : https://celiacha.github.io/Todo_List/
+
+
+
 # To Do List
 Réaliser une todo list permettant d'ajouter des choses à se rappeler. Une fois qu'une chose est faite, la rayer. Rajouter la possibilité de n'afficher que les tâches faites, les tâches à faire ou toutes les tâches.
 
@@ -48,11 +52,11 @@ Réaliser une todo list permettant d'ajouter des choses à se rappeler. Une fois
 	├─assets/
 	│ ├─js/
 	│ └─scss/
-	│ 
+	│
 	├─dist/
 	│ ├─js/
 	│ └─css/
-	│ 
+	│
 	├─index.html
 	└─package.json
 	```
