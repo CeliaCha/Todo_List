@@ -24,7 +24,7 @@ function addTask(taskName) {
   // création objet Task s'il n'existe pas déjà
   if (this.id == 'submitTask') {
     var taskName = document.getElementById("defineTask").value;
-    var newTask = new Task(taskName, new Date(), "Simplon");
+    var newTask = new Task(document.getElementById("defineTask").value, new Date(), "Simplon");
     taskArray.push(newTask);
     updateLocalStorage();
   }
@@ -132,7 +132,6 @@ function updateLocalStorage() {
 }
 
 
-
 // CONVERSION MILLISECONDES EN FORMAT DATE
 function msToHMS(ms) {
     // 1- Convert to seconds:
@@ -149,6 +148,7 @@ function msToHMS(ms) {
 
 // RECHERCHE OBJET PAR PROPRIÉTÉ NOM
 function findTaskByName(nameTask) {
+  // mise à jour des propriétés de l'objet Task
   function findTask(thisTask) { 
     return thisTask.name == nameTask;
   }

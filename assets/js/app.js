@@ -6,7 +6,6 @@ else { var taskArray = JSON.parse(taskStorage.getItem('userStorage')); }
 
 window.onload = function() {
   document.getElementById('viewTasks').innerHtml = "";
-  // log(taskArray);
     for (index in taskArray) {
       var taskName = taskArray[index].name;
       addTask(taskName);
@@ -25,7 +24,7 @@ function addTask(taskName) {
   // création objet Task s'il n'existe pas déjà
   if (this.id == 'submitTask') {
     var taskName = document.getElementById("defineTask").value;
-    var newTask = new Task(taskName, new Date(), "Simplon");
+    var newTask = new Task(document.getElementById("defineTask").value, new Date(), "Simplon");
     taskArray.push(newTask);
     updateLocalStorage();
   }
@@ -42,7 +41,7 @@ function addTask(taskName) {
   checkbox.setAttribute('id', 'checkbox-' + newTask.name);
   label.setAttribute('for', 'checkbox-' + newTask.name);
   label.setAttribute('id', 'label-' + newTask.name);
-  label.textContent = newTask.name + " (" + newTask.date.toLocaleDateString() + " à " + newTask.date.toLocaleTimeString()+ ")";
+  label.textContent = newTask.name + " (" + new Date(newTask.date).toLocaleDateString() + " à " + new Date(newTask.date).toLocaleTimeString()+ ")";
   button.setAttribute('id', 'button-' + newTask.name);
   button.textContent = "Delete";
   li.appendChild(checkbox);
@@ -131,7 +130,6 @@ function updateLocalStorage() {
   if (taskArray.length != 0) {taskStorage.setItem('userStorage', JSON.stringify(taskArray));}
   else {taskStorage.removeItem('userStorage');}
 }
-
 
 
 // CONVERSION MILLISECONDES EN FORMAT DATE
