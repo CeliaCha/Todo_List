@@ -1,15 +1,17 @@
 
+// VARIABLES GLOBALES
 var taskStorage = localStorage;
 if (JSON.parse(taskStorage.getItem("userStorage")) === null) { var taskArray = []; }
 else { var taskArray = JSON.parse(taskStorage.getItem('userStorage')); }
 
 
+// REAFFICHAGE LISTE AU CHARGEMENT
 window.onload = function() {
   document.getElementById('viewTasks').innerHtml = "";
-    for (index in taskArray) {
-      var taskName = taskArray[index].name;
-      addTask(taskName);
-    }
+  for (index in taskArray) {
+    taskArray[index].date = new Date(taskArray[index].date);
+    addTask(taskArray[index].name);
+  }
 }
 
 // LISTENERS
@@ -19,41 +21,17 @@ document.getElementById("done").addEventListener("click", displayDone);
 document.getElementById("alltasks").addEventListener("click", displayAll);
 
 
-// APPELÉE PAR BOUTON AJOUTER
+// FONCTIONS PRINCIPALES
 function addTask(taskName) {
-  // création objet Task s'il n'existe pas déjà
   if (this.id == 'submitTask') {
-    var taskName = document.getElementById("defineTask").value;
-    var newTask = new Task(document.getElementById("defineTask").value, new Date(), "Simplon");
+    var newTask = new Task(document.getElementById("defineTask").value, new Date(), "Simplon", false);
     taskArray.push(newTask);
     updateLocalStorage();
   }
   else {
-    var newTask = findTaskByName(taskName);
+    var newTask =  new Task(taskName, new Date(findTaskByName(taskName).date), "Simplon", findTaskByName(taskName).isDone);
   }
-  // ajout dans le DOM
-  var li = document.createElement('li');
-  var label = document.createElement('label');
-  var checkbox = document.createElement('input');
-  var button = document.createElement('button');
-  li.setAttribute('id', 'li-' + newTask.name);
-  checkbox.setAttribute('type', 'checkbox');
-  checkbox.setAttribute('id', 'checkbox-' + newTask.name);
-  label.setAttribute('for', 'checkbox-' + newTask.name);
-  label.setAttribute('id', 'label-' + newTask.name);
-  label.textContent = newTask.name + " (" + new Date(newTask.date).toLocaleDateString() + " à " + new Date(newTask.date).toLocaleTimeString()+ ")";
-  button.setAttribute('id', 'button-' + newTask.name);
-  button.textContent = "Delete";
-  li.appendChild(checkbox);
-  li.appendChild(label);
-  li.appendChild(button);
-  document.getElementById("viewTasks").appendChild(li);
-  // Ajoute un listener sur chaque nouveau checkbox
-  var myCheckbox = document.getElementById('checkbox-' + newTask.name);
-  myCheckbox.addEventListener("click", updateTasks);
-  // Ajoute un listener sur chaque nouveau bouton delete
-  var myDeleteButton = document.getElementById('button-' + newTask.name);
-  myDeleteButton.addEventListener("click", deleteTask); 
+  newTask.draw();
 }
 
 function deleteTask() {
@@ -66,31 +44,20 @@ function deleteTask() {
   }
 }
 
-// APPELLÉE PAR CHECKBOXES
-function updateTasks() {
+function updateTasks(taskName) {
   var taskToUpdate = findTaskByName(this.id.split("-").splice(-1).toString());
-  log(taskToUpdate);
+  var thisLabel = document.getElementById('label-' + taskToUpdate.name);
+  thisLabel.style.textDecoration == "line-through" ? thisLabel.style.textDecoration = "none" : thisLabel.style.textDecoration = "line-through";
   if (taskToUpdate.isDone == false) {
     taskToUpdate.isDone = true;
-    var dateDiff = msToHMS((Date.now() - taskToUpdate.date.getTime()));
+    var dateDiff = msToHMS((Date.now() - new Date(taskToUpdate.date).getTime()));
     alert(dateDiff);
   }
   else {
     taskToUpdate.isDone = false;
   }
-  // raye ou déraye les tâches 
-  var thisLabel = document.getElementById('label-' + taskToUpdate.name);
-  thisLabel.style.textDecoration == "line-through" ? thisLabel.style.textDecoration = "none" : thisLabel.style.textDecoration = "line-through";
-}
-
-
-
-// OBJET TASK
-var Task = function(name, date, category) {
-  this.name = name;
-  this.date = date;
-  this.category = category;
-  this.isDone = false;
+  updateLocalStorage();
+  
 }
 
 
@@ -98,39 +65,77 @@ var Task = function(name, date, category) {
 function displayToDo() {
   displayAll();
   if (this.checked) {
-    for (i in taskArray) {
-      var myTask = document.getElementById('label-' + taskArray[i].name);
-      if (myTask.style.textDecoration == "line-through") {
-        myTask.style.display = "none";
+    for (var i in taskArray) {
+      if (document.getElementById('label-' + taskArray[i].name).style.textDecoration == "line-through") {
+        document.getElementById('label-' + taskArray[i].name).style.display = "none";
+        document.getElementById('button-' + taskArray[i].name).style.display = "none";
       }
     }
-  }
-}
-function displayDone() {
-  displayAll();
-  if (this.checked) {
-    for (i in taskArray) {
-      var myTask = document.getElementById('label-' + taskArray[i].name);
-      if (myTask.style.textDecoration != "line-through") {
-        myTask.style.display = "none";
-      }
-    }
-  }
-}
-function displayAll() {
-  for (i in taskArray) {
-    var myTask = document.getElementById('label-' + taskArray[i].name);
-    myTask.style.display = "inline";
   }
 }
 
+function displayDone() {
+  displayAll();
+  if (this.checked) {
+    for (var i in taskArray) {
+      if (document.getElementById('label-' + taskArray[i].name).style.textDecoration != "line-through") {
+        document.getElementById('label-' + taskArray[i].name).style.display = "none";
+        document.getElementById('button-' + taskArray[i].name).style.display = "none";
+      }
+    }
+  }
+}
+
+function displayAll() {
+  for (var i in taskArray) {
+    var myTask = document.getElementById('label-' + taskArray[i].name);
+    var myButton = document.getElementById('button-' + taskArray[i].name);
+    myTask.style.display = "inline";
+    myButton.style.display = "inline";
+  }
+}
+
+// OBJET TASK
+var Task = function(name, date, category, checked) {
+  this.name = name;
+  this.date = date;
+  this.category = category;
+  this.isDone = checked;
+  this.draw = function() {
+    var li = document.createElement('li');
+    var label = document.createElement('label');
+    var checkbox = document.createElement('input');
+    var button = document.createElement('button');
+    li.setAttribute('id', 'li-' + this.name);
+    checkbox.setAttribute('type', 'checkbox');
+    checkbox.setAttribute('id', 'checkbox-' + this.name);
+    label.setAttribute('for', 'checkbox-' + this.name);
+    label.setAttribute('id', 'label-' + this.name);
+    label.textContent = this.name + " (" + new Date(this.date).toLocaleDateString() + " à " + new Date(this.date).toLocaleTimeString()+ ")";
+    if (this.isDone) {
+      label.style.textDecoration = "line-through";
+      checkbox.checked = true;
+    }
+    button.setAttribute('id', 'button-' + this.name);
+    button.textContent = "Delete";
+    li.appendChild(checkbox);
+    li.appendChild(label);
+    li.appendChild(button);
+    document.getElementById("viewTasks").appendChild(li);
+   
+    // ajout des listeners
+    var myCheckbox = document.getElementById('checkbox-' + this.name);
+    myCheckbox.addEventListener("click", updateTasks);
+    var myDeleteButton = document.getElementById('button-' + this.name);
+    myDeleteButton.addEventListener("click", deleteTask); 
+  }
+}
 
 // ACTUALISATION LOCALSTORAGE
 function updateLocalStorage() {
   if (taskArray.length != 0) {taskStorage.setItem('userStorage', JSON.stringify(taskArray));}
   else {taskStorage.removeItem('userStorage');}
 }
-
 
 // CONVERSION MILLISECONDES EN FORMAT DATE
 function msToHMS(ms) {
@@ -154,8 +159,6 @@ function findTaskByName(nameTask) {
   }
   return taskArray.find(findTask);
 }
-
-
 
 
 //DEV
