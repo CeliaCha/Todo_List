@@ -27,7 +27,7 @@ gulp.task('sass', function() { // compile le scss puis le minifie
 
 gulp.task('uglify', function () { // minifie le main.js
   gulp.src('./assets/js/*.js')
-  .pipe(uglify())
+  
   .pipe(gulp.dest('./dist/js/'))
 });
 
@@ -44,3 +44,6 @@ gulp.task('gulpwatch', ['styles', 'merge', 'sass', 'uglify', 'browser-sync'], fu
 });
 
 gulp.task('default', ['gulpwatch']);
+
+
+// .pipe(uglify())
