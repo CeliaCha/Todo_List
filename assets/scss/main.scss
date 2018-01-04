@@ -1,7 +1,11 @@
-// body {
-//   background-color: lightgrey;
-// }
 
-#tasklist li label {
+#viewTasks li label {
   color: white;
+}
+
+
+#viewTasks  li button {
+	margin-left: 10px;
+	color: black;
+	font-size: 10px;
 }
