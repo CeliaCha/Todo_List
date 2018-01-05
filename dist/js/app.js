@@ -1,4 +1,17 @@
 
+// JQUERY MATERIALIZE
+
+$(document).ready(function() {
+  $('select').material_select();
+
+
+  $('select').on('change', function() {
+        console.log($(this).val());
+    });
+});
+
+
+
 // VARIABLES GLOBALES
 var taskStorage = localStorage;
 if (JSON.parse(taskStorage.getItem("userStorage")) === null) { var taskArray = []; }
@@ -12,6 +25,7 @@ window.onload = function() {
     taskArray[index].date = new Date(taskArray[index].date);
     addTask(taskArray[index].name);
   }
+  
 }
 
 // LISTENERS
@@ -19,12 +33,20 @@ document.getElementById("submitTask").addEventListener("click", addTask);
 document.getElementById("todo").addEventListener("click", displayToDo);
 document.getElementById("done").addEventListener("click", displayDone);
 document.getElementById("alltasks").addEventListener("click", displayAll);
+// document.getElementById("categoryChoice").addEventListener("mouseup", selectCategory);
+
+function selectCategory() {
+  var e = document.getElementById("categoryChoice").firstChild;
+  var value = e.options[e.selectedIndex].value;
+  var text = e.options[e.selectedIndex].text;
+  log(text);
+}
 
 
 // FONCTIONS PRINCIPALES
 function addTask(taskName) {
   if (this.id == 'submitTask') {
-    var newTask = new Task(document.getElementById("defineTask").value, new Date(), "Simplon", false);
+    var newTask = new Task(document.getElementById("defineTask").value, new Date(), $('select').val(), false);
     taskArray.push(newTask);
     updateLocalStorage();
   }
@@ -105,8 +127,10 @@ var Task = function(name, date, category, checked) {
     var li = document.createElement('li');
     var label = document.createElement('label');
     var checkbox = document.createElement('input');
-    var button = document.createElement('button');
+    var button = document.createElement('a');
+    var icon = document.createElement('i');
     li.setAttribute('id', 'li-' + this.name);
+    li.setAttribute('class', 'collection-item');
     checkbox.setAttribute('type', 'checkbox');
     checkbox.setAttribute('id', 'checkbox-' + this.name);
     label.setAttribute('for', 'checkbox-' + this.name);
@@ -116,13 +140,17 @@ var Task = function(name, date, category, checked) {
       label.style.textDecoration = "line-through";
       checkbox.checked = true;
     }
+    icon.setAttribute('class', 'material-icons');
+    icon.textContent = 'delete';
     button.setAttribute('id', 'button-' + this.name);
-    button.textContent = "Delete";
+    button.setAttribute('class', 'waves-effect waves-teal btn-flat');
+    button.appendChild(icon);
+    li.appendChild(button);
     li.appendChild(checkbox);
     li.appendChild(label);
-    li.appendChild(button);
+    
     document.getElementById("viewTasks").appendChild(li);
-   
+
     // ajout des listeners
     var myCheckbox = document.getElementById('checkbox-' + this.name);
     myCheckbox.addEventListener("click", updateTasks);
@@ -137,23 +165,18 @@ function updateLocalStorage() {
   else {taskStorage.removeItem('userStorage');}
 }
 
-// CONVERSION MILLISECONDES EN FORMAT DATE
+// CONVERSION MILLISECONDES EN FORMAT DATE (piqué sur stackoverflow)
 function msToHMS(ms) {
-    // 1- Convert to seconds:
     var seconds = ms / 1000;
-    // 2- Extract hours:
     var hours = parseInt( seconds / 3600 ); // 3,600 seconds in 1 hour
     seconds = seconds % 3600; // seconds remaining after extracting hours
-    // 3- Extract minutes:
     var minutes = parseInt( seconds / 60 ); // 60 seconds in 1 minute
-    // 4- Keep only seconds not extracted to minutes:
     seconds = Math.round(seconds % 60);
     return ("Vous avez réalisé cette tâche en "+ hours+" heures, "+minutes+" minutes et "+seconds+" secondes.");
   } 
 
 // RECHERCHE OBJET PAR PROPRIÉTÉ NOM
 function findTaskByName(nameTask) {
-  // mise à jour des propriétés de l'objet Task
   function findTask(thisTask) { 
     return thisTask.name == nameTask;
   }

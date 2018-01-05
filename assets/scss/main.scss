@@ -1,11 +1,40 @@
 
-#viewTasks li label {
-  color: white;
+div.row:nth-child(1) {
+	margin-bottom: 0px;
+}
+
+.select-dropdown li span {
+	font-size: 12px;
+	line-height: 15px;
+}
+
+div.select-wrapper input.select-dropdown
+
+form {
+	display: flex;
+	align-items: space-between;
+	margin-top: 20px;
+
+	button {
+		margin-top: 7px;
+	}
 }
 
 
-#viewTasks  li button {
-	margin-left: 10px;
-	color: black;
-	font-size: 10px;
+#viewTasks {
+
+	li {
+		display: flex;
+
+		label {
+			color: #004d40;
+			}
+
+		a {
+			line-height: 20px;
+			color: #00897b;
+		}
+	}
+
 }
+
