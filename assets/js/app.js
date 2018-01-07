@@ -1,31 +1,33 @@
 
-// JQUERY MATERIALIZE
-
+// MATERIALIZE COMPONENTS INITIALISATION
 $(document).ready(function() {
   $('select').material_select();
-
-
-  $('select').on('change', function() {
-        console.log($(this).val());
-    });
+  $('#selectCategory').on('change', function() {
+    displayCategory();
+  });
 });
-
 
 
 // VARIABLES GLOBALES
 var taskStorage = localStorage;
 if (JSON.parse(taskStorage.getItem("userStorage")) === null) { var taskArray = []; }
 else { var taskArray = JSON.parse(taskStorage.getItem('userStorage')); }
+if (JSON.parse(taskStorage.getItem("listStorage")) === null) { var listArray = ['Simplon', 'Administratif','Perso']; }
+else { var listArray = JSON.parse(taskStorage.getItem('listStorage')); }
 
 
 // REAFFICHAGE LISTE AU CHARGEMENT
 window.onload = function() {
-  document.getElementById('viewTasks').innerHtml = "";
-  for (index in taskArray) {
-    taskArray[index].date = new Date(taskArray[index].date);
-    addTask(taskArray[index].name);
+  for (var i in listArray) {
+    var newList = new List(listArray[i]);
+    newList.add();
   }
-  
+  $('.carousel').carousel({fullWidth: true});
+  for (var i in taskArray) {
+    taskArray[i].date = new Date(taskArray[i].date); 
+    log('ici ' + taskArray[i].category);
+    addTask(taskArray[i].name, taskArray[i].category);
+  }
 }
 
 // LISTENERS
@@ -33,27 +35,20 @@ document.getElementById("submitTask").addEventListener("click", addTask);
 document.getElementById("todo").addEventListener("click", displayToDo);
 document.getElementById("done").addEventListener("click", displayDone);
 document.getElementById("alltasks").addEventListener("click", displayAll);
-// document.getElementById("categoryChoice").addEventListener("mouseup", selectCategory);
-
-function selectCategory() {
-  var e = document.getElementById("categoryChoice").firstChild;
-  var value = e.options[e.selectedIndex].value;
-  var text = e.options[e.selectedIndex].text;
-  log(text);
-}
 
 
-// FONCTIONS PRINCIPALES
-function addTask(taskName) {
+// GESTION DES TÂCHES
+// (cf bas de page pour le constructeur de l'objet Task)
+function addTask(taskName, category) {
   if (this.id == 'submitTask') {
     var newTask = new Task(document.getElementById("defineTask").value, new Date(), $('select').val(), false);
     taskArray.push(newTask);
     updateLocalStorage();
   }
   else {
-    var newTask =  new Task(taskName, new Date(findTaskByName(taskName).date), "Simplon", findTaskByName(taskName).isDone);
+    var newTask =  new Task(taskName, new Date(findTaskByName(taskName).date), category, findTaskByName(taskName).isDone);
   }
-  newTask.draw();
+  newTask.add();
 }
 
 function deleteTask() {
@@ -73,13 +68,13 @@ function updateTasks(taskName) {
   if (taskToUpdate.isDone == false) {
     taskToUpdate.isDone = true;
     var dateDiff = msToHMS((Date.now() - new Date(taskToUpdate.date).getTime()));
-    alert(dateDiff);
+    // alert(dateDiff);
+    Materialize.toast(dateDiff, 4000)
   }
   else {
     taskToUpdate.isDone = false;
   }
   updateLocalStorage();
-  
 }
 
 
@@ -117,13 +112,81 @@ function displayAll() {
   }
 }
 
-// OBJET TASK
+function displayCategory() {
+  log('ici');
+  document.getElementById('viewTasks').innerHTML = "";
+  var arrayCategory = filterTasksByCategory(document.getElementById('selectCategory').value);
+  for (var i in arrayCategory) {
+    addTask(arrayCategory[i].name);
+  }
+}
+
+// ACTUALISATION LOCALSTORAGE
+function updateLocalStorage() {
+  if (taskArray.length != 0) {taskStorage.setItem('userStorage', JSON.stringify(taskArray));}
+  else {taskStorage.removeItem('userStorage');}
+}
+
+// CONVERSION MILLISECONDES EN FORMAT DATE (piqué sur stackoverflow)
+function msToHMS(ms) {
+  var seconds = ms / 1000;
+    var hours = parseInt( seconds / 3600 ); // 3,600 seconds in 1 hour
+    seconds = seconds % 3600; // seconds remaining after extracting hours
+    var minutes = parseInt( seconds / 60 ); // 60 seconds in 1 minute
+    seconds = Math.round(seconds % 60);
+    return ("Validation tâche : "+ hours+" heures et "+minutes+" minutes.");
+  } 
+
+// FONCTIONS FILTRE ET RECHERCHE
+function findTaskByName(name) {
+  function findTask(thisTask) { 
+    return thisTask.name == name;
+  }
+  return taskArray.find(findTask);
+}
+
+function filterTasksByCategory(category) {
+  function filterTasks(thisTask) { 
+    return thisTask.category == category;
+  }
+  return taskArray.filter(filterTasks);
+}
+
+// CONSTRUCTEUR DE L'OBJET TASK
+
+var List = function(category) {
+  var colors = ['amber', 'green','teal','blue','purple',];
+  this.category = category;
+  this.color = colors[listArray.indexOf(this.category)];
+  this.add = function() {
+    var href = ['#one!', '#two!','#three!','#four!','#five!',];
+    var indexHref = listArray.indexOf(this.category);
+    var carousel = document.getElementById('mainCarousel');
+    var sliderItem = document.createElement('div');
+    var ul = document.createElement('ul');
+    sliderItem.setAttribute('class', 'carousel-item ' + this.color);
+    sliderItem.setAttribute('href', href[indexHref]);
+    ul.setAttribute('id', 'viewTasks-' + this.category);
+    sliderItem.textContent = this.category;
+    sliderItem.appendChild(ul);
+    carousel.appendChild(sliderItem);
+
+  }
+  this.fill = function() {
+    var arrayCategories = filterTasksByCategory(this.category);
+    for (var i in arrayCategories) {
+      addTask(arrayCategories[i].name);
+    }
+  }
+}
+
+
 var Task = function(name, date, category, checked) {
   this.name = name;
   this.date = date;
   this.category = category;
   this.isDone = checked;
-  this.draw = function() {
+  this.add = function() {
     var li = document.createElement('li');
     var label = document.createElement('label');
     var checkbox = document.createElement('input');
@@ -135,7 +198,7 @@ var Task = function(name, date, category, checked) {
     checkbox.setAttribute('id', 'checkbox-' + this.name);
     label.setAttribute('for', 'checkbox-' + this.name);
     label.setAttribute('id', 'label-' + this.name);
-    label.textContent = this.name + " (" + new Date(this.date).toLocaleDateString() + " à " + new Date(this.date).toLocaleTimeString()+ ")";
+    label.textContent = this.name + " (" + new Date(this.date).toLocaleDateString('fr-FR') + " à " + new Date(this.date).toLocaleTimeString('fr-FR')+ ")";
     if (this.isDone) {
       label.style.textDecoration = "line-through";
       checkbox.checked = true;
@@ -148,9 +211,8 @@ var Task = function(name, date, category, checked) {
     li.appendChild(button);
     li.appendChild(checkbox);
     li.appendChild(label);
-    
-    document.getElementById("viewTasks").appendChild(li);
-
+    document.getElementById("viewTasks-" + this.category).appendChild(li);
+    // document.getElementById("viewTasks").appendChild(li);
     // ajout des listeners
     var myCheckbox = document.getElementById('checkbox-' + this.name);
     myCheckbox.addEventListener("click", updateTasks);
@@ -158,31 +220,6 @@ var Task = function(name, date, category, checked) {
     myDeleteButton.addEventListener("click", deleteTask); 
   }
 }
-
-// ACTUALISATION LOCALSTORAGE
-function updateLocalStorage() {
-  if (taskArray.length != 0) {taskStorage.setItem('userStorage', JSON.stringify(taskArray));}
-  else {taskStorage.removeItem('userStorage');}
-}
-
-// CONVERSION MILLISECONDES EN FORMAT DATE (piqué sur stackoverflow)
-function msToHMS(ms) {
-    var seconds = ms / 1000;
-    var hours = parseInt( seconds / 3600 ); // 3,600 seconds in 1 hour
-    seconds = seconds % 3600; // seconds remaining after extracting hours
-    var minutes = parseInt( seconds / 60 ); // 60 seconds in 1 minute
-    seconds = Math.round(seconds % 60);
-    return ("Vous avez réalisé cette tâche en "+ hours+" heures, "+minutes+" minutes et "+seconds+" secondes.");
-  } 
-
-// RECHERCHE OBJET PAR PROPRIÉTÉ NOM
-function findTaskByName(nameTask) {
-  function findTask(thisTask) { 
-    return thisTask.name == nameTask;
-  }
-  return taskArray.find(findTask);
-}
-
 
 //DEV
 function log(truc) {

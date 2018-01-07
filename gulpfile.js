@@ -31,6 +31,7 @@ gulp.task('uglify', function () { // minifie le main.js
   .pipe(gulp.dest('./dist/js/'))
 });
 
+
 gulp.task('browser-sync', function() {
   browserSync.init({
     server: "./"
